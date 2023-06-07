@@ -3,8 +3,7 @@ Configurable mock local NESiCA-compatible service for testing/debugging purposes
 
 __ver 20230607__
 
-Updated for .NET6, this was desired because of some new NamedPipes functionality was introduced in .NET5
-We now do not require to run the service as Administrator, your normal user is sufficient.
+Updated for .NET6, this was desired because of some new NamedPipes functionality was introduced in .NET5, this allows us to abolish requirements to run the service as Administrator, your normal user is sufficient.
 
 
 **ver 2022**
