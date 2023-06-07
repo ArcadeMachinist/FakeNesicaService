@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.IO.Pipes;
+using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading;
@@ -113,8 +114,18 @@ namespace FakeNesicaService
             Byte[] s_ip_mac  = System.Text.Encoding.UTF8.GetBytes("001C42888475");
 
 
-            NamedPipeServerStream pipeServer =
-                new NamedPipeServerStream("nesys_games", PipeDirection.InOut, numThreads);
+            if (!System.OperatingSystem.IsWindows())
+                throw new PlatformNotSupportedException("Windows only");
+
+            SecurityIdentifier securityIdentifier = new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null);
+            PipeSecurity pipeSecurity = new PipeSecurity();
+
+            // Allow Everyone read and write access to the pipe. 
+            pipeSecurity.AddAccessRule(new PipeAccessRule(securityIdentifier, PipeAccessRights.ReadWrite | PipeAccessRights.CreateNewInstance, System.Security.AccessControl.AccessControlType.Allow));
+
+            NamedPipeServerStream pipeServer = NamedPipeServerStreamAcl.Create("nesys_games", PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Byte, PipeOptions.Asynchronous, 0, 0, pipeSecurity);
+
+
             int threadId = Thread.CurrentThread.ManagedThreadId;
             myProgress.Report("Waiting for clients thread "+ threadId);
             // Wait for a client to connect
